@@ -1,0 +1,10 @@
+import { drizzle } from "drizzle-orm/node-postgres";
+import pool from "../config/database";
+
+import * as schema from "./schema";
+
+const db = drizzle(pool, {
+  schema,
+});
+
+export default db;
