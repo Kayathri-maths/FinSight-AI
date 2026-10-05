@@ -6,6 +6,10 @@ import {
   timestamp,
   uuid,
   uniqueIndex,
+  inet,
+numeric,
+varchar,
+char
 } from "drizzle-orm/pg-core";
 
 export const roles = pgTable(
@@ -111,6 +115,101 @@ export const rolePermissions = pgTable(
 
     permissionIdx: index("idx_role_permissions_permission_id").on(
       table.permissionId
+    ),
+  })
+);
+
+export const transactions = pgTable(
+  "transactions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+
+  transactionCode: varchar("transaction_code", { length: 40 }).notNull(),
+
+    customerId: uuid("customer_id").notNull(),
+
+    merchantId: uuid("merchant_id").notNull(),
+
+    walletId: uuid("wallet_id"),
+
+    amount: numeric("amount", {
+      precision: 18,
+      scale: 2,
+    }).notNull(),
+
+    currency: char("currency", {
+      length: 3,
+    })
+      .notNull()
+      .default("INR"),
+
+    transactionType: varchar("transaction_type", {
+      length: 30,
+    }).notNull(),
+
+    paymentMethod: varchar("payment_method", {
+      length: 30,
+    }).notNull(),
+
+    status: varchar("status", {
+      length: 30,
+    }).notNull(),
+
+    failureReason: text("failure_reason"),
+
+    deviceId: varchar("device_id", {
+      length: 255,
+    }),
+
+    isNewDevice: boolean("is_new_device")
+      .notNull()
+      .default(false),
+
+    city: varchar("city", {
+      length: 100,
+    }),
+
+    state: varchar("state", {
+      length: 100,
+    }),
+
+    country: varchar("country", {
+      length: 100,
+    }).default("India"),
+
+    isNewLocation: boolean("is_new_location")
+      .notNull()
+      .default(false),
+
+    ipAddress: inet("ip_address"),
+
+    channel: varchar("channel", {
+      length: 30,
+    }),
+
+    transactionTime: timestamp("transaction_time", {
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+
+    createdAt: timestamp("created_at", {
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    customerIdx: index("idx_transactions_customer_id").on(
+      table.customerId
+    ),
+
+    customerTimeIdx: index(
+      "idx_transactions_customer_time"
+    ).on(table.customerId, table.transactionTime),
+
+    merchantIdx: index("idx_transactions_merchant_id").on(
+      table.merchantId
     ),
   })
 );
